@@ -1,0 +1,5 @@
+FROM ubuntu
+
+RUN apt update && apt install htop
+
+CMD htop

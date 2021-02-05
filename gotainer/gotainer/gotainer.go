@@ -1,4 +1,4 @@
-package main
+package gotainer
 
 import (
 	"fmt"
@@ -12,17 +12,11 @@ import (
 
 var rootless = true
 
-func main() {
-	fmt.Println(os.Args[1])
-	switch os.Args[1] {
-	case "run":
-		run()
-	case "child":
-		child()
-	default:
-		panic("what??")
-	}
-}
+const (
+	imageExt      string = ".tar"
+	imagesPath    string = "storage/images"
+	containerPath string = "storage/container"
+)
 
 // go run main.go run <cmd> <args>
 func run() {
@@ -60,7 +54,7 @@ func child() {
 	cmd.Stderr = os.Stderr
 
 	must(syscall.Sethostname([]byte("container")))
-	must(syscall.Chroot("rootfs")) // need to change to a rootfs
+	must(syscall.Chroot("storage/iamges/ubuntu")) // need to change to a rootfs
 	must(os.Chdir("/"))
 	must(syscall.Mount("proc", "proc", "proc", 0, ""))
 	err := cmd.Run()
@@ -94,10 +88,4 @@ func setupCGroup(name string) {
 
 	memoryLimitInBytes := 40 * 1024 * 1024 // 40 MB
 	must(ioutil.WriteFile(filepath.Join(cgroup, "memory.limit_in_bytes"), []byte(strconv.Itoa(memoryLimitInBytes)), 0700))
-}
-
-func must(err error) {
-	if err != nil {
-		panic(err)
-	}
 }
